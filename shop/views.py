@@ -45,10 +45,21 @@ def product_list(request, category_slug=None):
         category = get_object_or_404(Category, slug=category_slug)
         products_queryset = products_queryset.filter(category=category)
 
+    # Пагинация для разбивки списка товаров на отдельные страницы
+    paginator = Paginator(products_queryset, 3)
+    page_number = request.GET.get('page')
+
+    try:
+        products_page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        products_page_obj = paginator.page(1)
+    except EmptyPage:
+        products_page_obj = paginator.page(paginator.num_pages)
+
     context = {
         'category': category,
         'categories': categories,
-        'products': products_queryset,
+        'products': products_page_obj,
         'query': query,
     }
     return render(request, 'shop/product/list.html', context)
