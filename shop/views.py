@@ -65,6 +65,10 @@ def product_list(request, category_slug=None):
     return render(request, 'shop/product/list.html', context)
 
 # Представление для отображения детальной информации о товаре.
+def product_detail(request, id, slug):
+    product = get_object_or_404(Product, id=id, slug=slug, available=True)
+
+    return render(request, 'shop/product/detail.html', {'product':product})
 
 # --- Представления для Заказов ---
 
