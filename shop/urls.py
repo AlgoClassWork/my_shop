@@ -29,5 +29,5 @@ urlpatterns = [
     path('<slug:category_slug>/', views.product_list, name='product_list_by_category'),
     # URL для детальной страницы товара (например, /123/super-tovar/)
     # <int:id> захватывает числовой ID, <slug:slug> - слаг товара.
-    path('<int:id>/<slug:slug>/', views.product_list, name='product_detail'),
+    path('<int:id>/<slug:slug>/', views.product_detail, name='product_detail'),
 ]
