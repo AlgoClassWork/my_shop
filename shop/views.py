@@ -7,7 +7,9 @@ from django.core.mail import send_mail # Для отправки email
 from django.conf import settings # Для доступа к настройкам проекта
 from django.db.models import Q # Для создания сложных поисковых запросов (OR-условия)
 from django.utils import timezone # Для работы с временем (например, для купонов)
-from django.contrib import messages # Для отображения флеш-сообщений пользователю
+from django.contrib import messages
+
+from shop.cart import Cart # Для отображения флеш-сообщений пользователю
 
 from .models import Product, Category # Модели данных
 
@@ -22,10 +24,25 @@ class ContactInfoView(TemplateView):
 # --- Представления для Корзины и Купонов ---
 
 # Представление для добавления товара в корзину.
-
+@require_POST
+def cart_add(request, product_id):
+    cart = Cart(request)
+    product = get_object_or_404(Product, id=product_id)
+    cart.add(product=product, quantity=1, update_quantity=False)
+    messages.success(request, f'Товар {product.name} был добавлен в вашу корзину')
+    return redirect('shop:cart_detail')
 # Представление для удаления товара из корзины.
-
+@require_POST
+def cart_remove(request, product_id):
+    cart = Cart(request)
+    product = get_object_or_404(Product, id=product_id)
+    cart.remove(product)
+    messages.success(request, f'Товар {product.name} был удален из корзины')
+    return redirect('shop:cart_detail')
 # Представление для отображения страницы с деталями корзины.
+def cart_detail(request):
+    cart = Cart(request)
+    return render(request, 'shop/cart/detail.html', {'cart':cart})
 
 # Представление для применения купона к корзине.
 
