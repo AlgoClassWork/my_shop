@@ -13,9 +13,9 @@ urlpatterns = [
     path('contact-info/', views.ContactInfoView.as_view(), name='contact_info'),
 
     # URL-ы для корзины и купонов
-    path('cart/', views.product_list, name='cart_detail'), # Страница с деталями корзины
-    path('cart/add/<int:product_id>/', views.product_list, name='cart_add'), # Добавление товара в корзину
-    path('cart/remove/<int:product_id>/', views.product_list, name='cart_remove'), # Удаление товара из корзины
+    path('cart/', views.cart_detail, name='cart_detail'), # Страница с деталями корзины
+    path('cart/add/<int:product_id>/', views.cart_add, name='cart_add'), # Добавление товара в корзину
+    path('cart/remove/<int:product_id>/', views.cart_remove, name='cart_remove'), # Удаление товара из корзины
     path('coupons/apply/', views.product_list, name='coupon_apply'), # Применение купона
 
     # URL-ы для заказов
