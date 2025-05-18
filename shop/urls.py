@@ -9,8 +9,8 @@ app_name = 'shop'
 # Django будет искать совпадения по порядку.
 urlpatterns = [
     # URL-ы для информационных страниц (используют TemplateView)
-    path('about-us/', views.product_list, name='about_us'),
-    path('contact-info/', views.product_list, name='contact_info'),
+    path('about-us/', views.AboutUsView.as_view(), name='about_us'),
+    path('contact-info/', views.ContactInfoView.as_view(), name='contact_info'),
 
     # URL-ы для корзины и купонов
     path('cart/', views.product_list, name='cart_detail'), # Страница с деталями корзины
