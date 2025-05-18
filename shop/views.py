@@ -11,9 +11,13 @@ from django.contrib import messages # Для отображения флеш-с�
 
 from .models import Product, Category # Модели данных
 
-
 # --- Информационные страницы (используют Class-Based View - TemplateView) ---
 
+class AboutUsView(TemplateView):
+    template_name = 'shop/about_us.html'
+
+class ContactInfoView(TemplateView):
+    template_name = 'shop/contact_info.html'
 
 # --- Представления для Корзины и Купонов ---
 
@@ -67,8 +71,13 @@ def product_list(request, category_slug=None):
 # Представление для отображения детальной информации о товаре.
 def product_detail(request, id, slug):
     product = get_object_or_404(Product, id=id, slug=slug, available=True)
+    related_products = Product.objects.filter(category=product.category,
+    available=True).exclude(id=product.id).order_by('?')[:4]
 
-    return render(request, 'shop/product/detail.html', {'product':product})
+    context = {'product':product,
+               'related_products':related_products}
+
+    return render(request, 'shop/product/detail.html', context)
 
 # --- Представления для Заказов ---
 
