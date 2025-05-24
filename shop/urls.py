@@ -16,10 +16,10 @@ urlpatterns = [
     path('cart/', views.cart_detail, name='cart_detail'), # Страница с деталями корзины
     path('cart/add/<int:product_id>/', views.cart_add, name='cart_add'), # Добавление товара в корзину
     path('cart/remove/<int:product_id>/', views.cart_remove, name='cart_remove'), # Удаление товара из корзины
-    path('coupons/apply/', views.product_list, name='coupon_apply'), # Применение купона
+    path('coupons/apply/', views.coupon_apply, name='coupon_apply'), # Применение купона
 
     # URL-ы для заказов
-    path('order/create/', views.product_list, name='order_create'), # Страница оформления заказа
+    path('order/create/', views.order_create, name='order_create'), # Страница оформления заказа
     path('order/created/', views.product_list, name='order_created'), # Страница подтверждения заказа
     # URL-ы для каталога товаров
     # Пустой путь '' для главной страницы каталога (также обрабатывает поиск)
