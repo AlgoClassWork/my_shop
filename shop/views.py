@@ -8,10 +8,11 @@ from django.conf import settings # Для доступа к настройкам
 from django.db.models import Q # Для создания сложных поисковых запросов (OR-условия)
 from django.utils import timezone # Для работы с временем (например, для купонов)
 from django.contrib import messages
+from .forms import CouponApplyForm
 
 from shop.cart import Cart # Для отображения флеш-сообщений пользователю
 
-from .models import Product, Category # Модели данных
+from .models import Product, Category, Coupon # Модели данных
 
 # --- Информационные страницы (используют Class-Based View - TemplateView) ---
 
@@ -42,7 +43,33 @@ def cart_remove(request, product_id):
 # Представление для отображения страницы с деталями корзины.
 def cart_detail(request):
     cart = Cart(request)
-    return render(request, 'shop/cart/detail.html', {'cart':cart})
+    coupon_apply_form = CouponApplyForm()
+
+    context = {'cart':cart,
+               'coupon_apply_form': coupon_apply_form}
+
+    return render(request, 'shop/cart/detail.html', context )
+
+@require_POST
+def coupon_apply(request):
+    form = CouponApplyForm(request.POST) 
+    if form.is_valid():
+        code = form.cleaned_data['code'] #LETO2025
+        try:
+            coupon = Coupon.objects.get(code__iexact=code)
+            if coupon.is_valid():
+                request.session['coupon_id'] = coupon.id
+                messages.success(request, f'Купон {coupon.code} успешно применен!')
+            else:
+                request.session['coupon_id'] = None
+                messages.warning(request, 'Данный купон недействителен')
+        except Coupon.DoesNotExist:
+            request.session['coupon_id'] = None
+            messages.error(request, 'Купон с таким кодом не найден')
+    else:
+        messages.error(request, 'Введите код купона')
+    return redirect('shop:cart_detail')
+
 
 # Представление для применения купона к корзине.
 
