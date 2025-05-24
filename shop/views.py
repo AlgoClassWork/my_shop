@@ -8,11 +8,11 @@ from django.conf import settings # Для доступа к настройкам
 from django.db.models import Q # Для создания сложных поисковых запросов (OR-условия)
 from django.utils import timezone # Для работы с временем (например, для купонов)
 from django.contrib import messages
-from .forms import CouponApplyForm
+from .forms import CouponApplyForm, OrderCreateForm
 
 from shop.cart import Cart # Для отображения флеш-сообщений пользователю
 
-from .models import Product, Category, Coupon # Модели данных
+from .models import Product, Category, Coupon, OrderItem # Модели данных
 
 # --- Информационные страницы (используют Class-Based View - TemplateView) ---
 
@@ -50,6 +50,7 @@ def cart_detail(request):
 
     return render(request, 'shop/cart/detail.html', context )
 
+# Представление для применения купона к корзине.
 @require_POST
 def coupon_apply(request):
     form = CouponApplyForm(request.POST) 
@@ -69,9 +70,6 @@ def coupon_apply(request):
     else:
         messages.error(request, 'Введите код купона')
     return redirect('shop:cart_detail')
-
-
-# Представление для применения купона к корзине.
 
 # --- Представления для Каталога товаров ---
 
@@ -126,5 +124,41 @@ def product_detail(request, id, slug):
 # --- Представления для Заказов ---
 
 # Представление для создания (оформления) заказа.
+def order_create(request):
+    cart = Cart(request)
+    if not cart:
+        messages.warning(request, 'Ваша корзина пуста')
+        return redirect('shop:product_list')
+
+    if request.method == 'POST':
+        form = OrderCreateForm(request.POST)
+        if form.is_valid():
+            order = form.save(commit=False)
+            active_coupon = cart.coupon
+            if active_coupon:
+                order.coupon = active_coupon
+                order.discount = active_coupon.discount
+            order.save()
+        for item_cart in cart:
+            OrderItem.objects.create(
+                order = order,
+                product = item_cart['product'],
+                price = item_cart['price'],
+                quantity = item_cart['quantity']
+            )
+
+        order_id_for_session = order.id
+        cart.clear()
+
+        return redirect('shop:order_created')
+    else:
+        form = OrderCreateForm()
+
+    context = {
+        'cart': cart,
+        'form':form
+    }
+
+    return render(request, 'shop/order/create.html', {'form':form})
 
 # Представление для страницы "Спасибо за заказ" (подтверждение заказа).
