@@ -12,7 +12,7 @@ from .forms import CouponApplyForm, OrderCreateForm
 
 from shop.cart import Cart # Для отображения флеш-сообщений пользователю
 
-from .models import Product, Category, Coupon, OrderItem # Модели данных
+from .models import Product, Category, Coupon, Order, OrderItem # Модели данных
 
 # --- Информационные страницы (используют Class-Based View - TemplateView) ---
 
@@ -147,7 +147,8 @@ def order_create(request):
                 quantity = item_cart['quantity']
             )
 
-        order_id_for_session = order.id
+        request.session['order_id'] = order.id
+
         cart.clear()
 
         return redirect('shop:order_created')
@@ -162,3 +163,14 @@ def order_create(request):
     return render(request, 'shop/order/create.html', {'form':form})
 
 # Представление для страницы "Спасибо за заказ" (подтверждение заказа).
+def order_created(request):
+    order_id = request.session.get('order_id')
+    order = None
+    if order_id:
+        try:
+            order = Order.objects.get(id=order_id)
+        except:
+            messages.error(request, 'Не удалось найти информацию о вашем заказе')
+            pass
+    
+    return render(request, 'shop/order/created.html', {'order' : order})
