@@ -20,7 +20,7 @@ urlpatterns = [
 
     # URL-ы для заказов
     path('order/create/', views.order_create, name='order_create'), # Страница оформления заказа
-    path('order/created/', views.product_list, name='order_created'), # Страница подтверждения заказа
+    path('order/created/', views.order_created, name='order_created'), # Страница подтверждения заказа
     # URL-ы для каталога товаров
     # Пустой путь '' для главной страницы каталога (также обрабатывает поиск)
     path('', views.product_list, name='product_list'), 
